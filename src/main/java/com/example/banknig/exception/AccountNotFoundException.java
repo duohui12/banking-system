@@ -1,4 +1,4 @@
-package com.example.banknig.account.domain;
+package com.example.banknig.exception;
 
 public class AccountNotFoundException extends RuntimeException{
     public AccountNotFoundException(Long accountId){

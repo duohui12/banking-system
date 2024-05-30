@@ -3,7 +3,7 @@ package com.example.banknig.account.application.service;
 import com.example.banknig.account.application.port.LoadAccountPort;
 import com.example.banknig.account.application.port.SendMoneyCommand;
 import com.example.banknig.account.domain.Account;
-import com.example.banknig.account.domain.AccountNotFoundException;
+import com.example.banknig.exception.AccountNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
