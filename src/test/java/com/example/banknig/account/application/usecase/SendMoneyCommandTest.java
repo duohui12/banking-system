@@ -1,5 +1,6 @@
 package com.example.banknig.account.application.usecase;
 
+import com.example.banknig.account.application.port.SendMoneyCommand;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,7 +17,7 @@ class SendMoneyCommandTest {
 
         Long validSourceAccountId = 12345L;
         Long validTargetAccountId = 54321L;
-        int validAmount = 100;
+        Long validAmount = 100L;
 
 
         @Nested
@@ -54,11 +55,28 @@ class SendMoneyCommandTest {
         }
 
         @Nested
+        @DisplayName("인스턴스 생성시 null인 금액이 주어지면")
+        class Context_with_null_amount{
+
+            Long nullAmount = null;
+
+            @Test
+            @DisplayName("Validation Exception을 던진다")
+            void it_throws_validation_exception(){
+                assertThrows( ConstraintViolationException.class
+                        , () -> new SendMoneyCommand( validSourceAccountId
+                                , validTargetAccountId
+                                , nullAmount) );
+            }
+
+        }
+
+        @Nested
         @DisplayName("인스턴스 생성시 0보다 작거나 같은 금액이 주어지면")
         class Context_with_minus_amount{
 
-            int minusAmount = -100;
-            int zeroAmount = 0;
+            Long minusAmount = -100L;
+            Long zeroAmount = 0L;
 
 
             @Test
