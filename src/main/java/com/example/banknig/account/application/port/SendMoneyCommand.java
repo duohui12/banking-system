@@ -1,9 +1,8 @@
-package com.example.banknig.account.application.usecase;
+package com.example.banknig.account.application.port;
 
 import com.example.banknig.common.SelfValidating;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import lombok.Value;
 import org.hibernate.validator.constraints.Range;
 
 @Getter
@@ -15,12 +14,13 @@ public class SendMoneyCommand extends SelfValidating<SendMoneyCommand> {
     @NotNull
     private final Long targetAccountId;
 
-    @Range(min = 1)
-    private final int amount;
+    @NotNull
+    @Range(min = 1L)
+    private final Long amount;
 
     public SendMoneyCommand(Long sourceAccountId
                             , Long targetAccountId
-                            , int amount)
+                            , Long amount)
     {
         this.sourceAccountId = sourceAccountId;
         this.targetAccountId = targetAccountId;

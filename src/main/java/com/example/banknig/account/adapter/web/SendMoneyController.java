@@ -1,7 +1,7 @@
 package com.example.banknig.account.adapter.web;
 
-import com.example.banknig.account.application.usecase.SendMoneyCommand;
-import com.example.banknig.account.application.usecase.SendMoneyUseCase;
+import com.example.banknig.account.application.port.SendMoneyCommand;
+import com.example.banknig.account.application.service.SendMoneyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,19 +10,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 class SendMoneyController {
 
-    private final SendMoneyUseCase sendMoneyUseCase;
+    private final SendMoneyService sendMoneyService;
 
     @PostMapping("/accounts/send/{sourceAccountId/{targetAccountId}/{amount}}")
     public void sendMoney(Long sourceAccountId
                             , Long targetAccountId
-                            , int amount){
+                            , Long amount){
 
         SendMoneyCommand sendMoneyCommand = new SendMoneyCommand(
                                             sourceAccountId
                                             , targetAccountId
                                             , amount );
 
-        sendMoneyUseCase.SendMoney(sendMoneyCommand);
+        sendMoneyService.SendMoney(sendMoneyCommand);
     }
 
 }
