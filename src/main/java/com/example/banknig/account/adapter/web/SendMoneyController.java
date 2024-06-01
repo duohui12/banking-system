@@ -22,7 +22,7 @@ class SendMoneyController {
                                             , targetAccountId
                                             , amount );
 
-        sendMoneyService.SendMoney(sendMoneyCommand);
+        sendMoneyService.sendMoney(sendMoneyCommand);
     }
 
 }

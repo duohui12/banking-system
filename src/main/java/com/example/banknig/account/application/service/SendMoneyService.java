@@ -2,8 +2,8 @@ package com.example.banknig.account.application.service;
 
 import com.example.banknig.account.application.port.LoadAccountPort;
 import com.example.banknig.account.application.port.SendMoneyCommand;
+import com.example.banknig.account.application.port.SaveAccountPort;
 import com.example.banknig.account.domain.Account;
-import com.example.banknig.exception.AccountNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,8 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class SendMoneyService{
 
     private final LoadAccountPort loadAccountPort;
+    private final SaveAccountPort saveAccountPort;
 
-    public boolean SendMoney(SendMoneyCommand sendMoneyCommand) {
+    public boolean sendMoney(SendMoneyCommand sendMoneyCommand) {
 
         //TODO: 아래 시나리오 생각해보기 - 개선할 부분
         // A계좌의 잔액 : 4000원, B계좌의 잔액 : 1000원, C계좌의 잔액 : 4000원
@@ -30,11 +31,9 @@ public class SendMoneyService{
         // 6.최종 잔고 상태 A: 3000원, B:2000원, C:3000원
         // 하나의 송금 트랜잭션이 실행되는 도중에 같은 자원을 사용하는 다른 트랜잭션이 실행되어 lost update
 
-        Account sourceAccount = loadAccountPort.loadAccount(sendMoneyCommand.getSourceAccountId())
-                .orElseThrow(()-> new AccountNotFoundException(sendMoneyCommand.getSourceAccountId()));
+        Account sourceAccount = loadAccountPort.loadAccount(sendMoneyCommand.getSourceAccountId());
 
-        Account targetAccount = loadAccountPort.loadAccount(sendMoneyCommand.getTargetAccountId())
-                .orElseThrow(() -> new AccountNotFoundException(sendMoneyCommand.getSourceAccountId()));
+        Account targetAccount = loadAccountPort.loadAccount(sendMoneyCommand.getTargetAccountId());
 
         //source account 에서 출금, target account에 입금
         if(!sourceAccount.withdraw(sendMoneyCommand.getAmount())){
@@ -43,6 +42,10 @@ public class SendMoneyService{
         if(!targetAccount.deposit(sendMoneyCommand.getAmount())){
             return false;
         }
+
+        saveAccountPort.saveAccount(sourceAccount);
+        saveAccountPort.saveAccount(targetAccount);
+
         return true;
     }
 
