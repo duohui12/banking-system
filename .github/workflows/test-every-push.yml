@@ -1,0 +1,40 @@
+name: 'test-every-push'
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions: write-all
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      # Gradle wrapper 권한부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Gradle test 실행
+      - name: Test with Gradle
+        run: ./gradlew --info test
+
+      # Test 후 Report 생성
+      - name: publish unit test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: build/test-results/test/TEST-*.xml
