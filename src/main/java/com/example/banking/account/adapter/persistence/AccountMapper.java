@@ -4,7 +4,7 @@ import com.example.banking.account.domain.Account;
 import org.springframework.stereotype.Component;
 
 @Component
-class AccountMapper {
+public class AccountMapper {
 
     //Entity -> Domain 변환
     Account mapToDomain(AccountEntity accountEntity){
