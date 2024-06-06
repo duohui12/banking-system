@@ -12,7 +12,7 @@ class SendMoneyController {
 
     private final SendMoneyService sendMoneyService;
 
-    @PostMapping("/accounts/send/{sourceAccountId/{targetAccountId}/{amount}}")
+    @PostMapping("/accounts/send/{sourceAccountId}/{targetAccountId}/{amount}")
     public void sendMoney(Long sourceAccountId
                             , Long targetAccountId
                             , Long amount){
