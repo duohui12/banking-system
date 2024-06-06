@@ -1,8 +1,6 @@
 package com.example.banking.account.application.service;
 
 import com.example.banking.account.adapter.persistence.AccountPersistenceAdapter;
-import com.example.banking.account.application.port.LoadAccountPort;
-import com.example.banking.account.application.port.SaveAccountPort;
 import com.example.banking.account.application.port.SendMoneyCommand;
 import com.example.banking.account.domain.Account;
 import org.junit.jupiter.api.DisplayName;
@@ -10,7 +8,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

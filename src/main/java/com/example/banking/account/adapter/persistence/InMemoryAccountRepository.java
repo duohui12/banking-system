@@ -6,13 +6,14 @@ import com.example.banking.account.domain.Account;
 import com.example.banking.exception.AccountNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
-@Repository
-public class InMemoryAccountRepository implements LoadAccountPort
+//@Repository
+class InMemoryAccountRepository implements LoadAccountPort
                                                     , SaveAccountPort {
 
     private final AccountMapper accountMapper;
