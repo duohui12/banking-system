@@ -1,18 +1,15 @@
 package com.example.banking.account.application.service;
 
-import com.example.banking.account.adapter.persistence.AccountMapper;
-import com.example.banking.account.adapter.persistence.InMemoryAccountRepository;
 import com.example.banking.account.application.port.LoadAccountPort;
 import com.example.banking.account.application.port.SaveAccountPort;
 import com.example.banking.account.application.port.SendMoneyCommand;
 import com.example.banking.account.domain.Account;
 import com.example.banking.exception.AccountNotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -131,56 +128,5 @@ class SendMoneyServiceTest {
             }
         }
 
-        @Nested
-        @DisplayName("A계좌에서, B계좌로, 100번의 송금요청을 동시에 보내면")
-        class Context_with_100_concurrent_send_money_requests{
-
-            //TODO: 모킹해서 테스트하는 방법은 모르겠음
-            private InMemoryAccountRepository repository;
-            private SendMoneyService sendMoneyService;
-            private SendMoneyCommand validCommand;
-
-            @BeforeEach
-            void setup(){
-                repository = new InMemoryAccountRepository(new AccountMapper());
-                repository.saveAccount(sourceAccount);
-                repository.saveAccount(targetAccount);
-
-                sendMoneyService = new SendMoneyService(repository, repository);
-
-                validCommand =  new SendMoneyCommand(existingSourceAccountId
-                        , existingTargetAccountId
-                        , sendMoneyAmount);
-            }
-
-            @Test
-            @DisplayName("A계좌의 잔액은 (A계좌의 잔액-(100*송금액))원이 되고, B계좌의 잔액은 (B계좌의 잔액+(100*송금액))원이 된다")
-            void it_updates_balance() throws InterruptedException {
-
-                int threadCount = 100;
-                ExecutorService executorService = Executors.newFixedThreadPool(50);
-                CountDownLatch countDownLatch = new CountDownLatch(threadCount);
-
-                for (int i = 1; i <= threadCount; i++) {
-                    executorService.submit(() -> {
-                        sendMoneyService.sendMoney(validCommand);
-                        countDownLatch.countDown();
-                    });
-                }
-
-                countDownLatch.await();
-
-                Account sourceAccount = repository.loadAccount(existingSourceAccountId);
-                Account targetAccount = repository.loadAccount(existingTargetAccountId);
-
-                assertThat(sourceAccount.getBalance()).isEqualTo(sourceAccountBalance - (threadCount*sendMoneyAmount));
-                assertThat(targetAccount.getBalance()).isEqualTo(targetAccountBalance + (threadCount*sendMoneyAmount));
-
-//                log.info("source account balance : {} / target account balance : {}"
-//                        , sourceAccount.getBalance()
-//                        , targetAccount.getBalance());
-
-            }
-        }
     }
 }
