@@ -30,6 +30,11 @@ class InMemoryAccountRepository implements LoadAccountPort
     }
 
     @Override
+    public Account loadAccountWithPessimisticLock(Long accountId) {
+        return null;
+    }
+
+    @Override
     public void saveAccount(Account account) {
         if(account.getAccountId() == null){
             account.setAccountId(getAccountId());

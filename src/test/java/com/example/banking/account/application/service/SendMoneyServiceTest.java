@@ -85,8 +85,8 @@ class SendMoneyServiceTest {
         class Context_with_nonexistence_target_account{
 
             private SendMoneyCommand invalidCommand = new SendMoneyCommand(existingSourceAccountId
-                    , nonexistenceTargetAccountId
-                    , sendMoneyAmount);
+                                                                            , nonexistenceTargetAccountId
+                                                                            , sendMoneyAmount);
 
             @Test
             @DisplayName("AccountNotFoundException을 던진다")

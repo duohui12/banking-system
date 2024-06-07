@@ -24,6 +24,14 @@ public class AccountPersistenceAdapter  implements LoadAccountPort
     }
 
     @Override
+    public Account loadAccountWithPessimisticLock(Long accountId) {
+        AccountEntity accountEntity = springDataJpaAccountRepository.findByIdWithPessimisticLock(accountId)
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
+
+        return accountMapper.mapToDomain(accountEntity);
+    }
+
+    @Override
     public void saveAccount(Account account) {
         springDataJpaAccountRepository.save(accountMapper.mapToEntity(account));
     }
