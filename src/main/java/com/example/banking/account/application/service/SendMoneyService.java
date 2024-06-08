@@ -20,8 +20,11 @@ public class SendMoneyService{
 
     public boolean sendMoneyWithPessimisticLock(SendMoneyCommand sendMoneyCommand) {
 
-        //계좌 락 획득 순서를 정해서 순환대기 끊기
-        //accountID 오름차순으로 Lock 걸어보기
+        /*
+        데드락 방지
+        Lock 획득 순서를 정해서 순환대기 끊기
+        accountID 오름차순으로 Lock 걸기
+        */
 
         Account sourceAccount;
         Account targetAccount;

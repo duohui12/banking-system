@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 //@Repository
 class InMemoryAccountRepository implements LoadAccountPort
-                                                    , SaveAccountPort {
+                                                , SaveAccountPort {
 
     private final AccountMapper accountMapper;
     private static Map<Long,AccountEntity> map = new ConcurrentHashMap<>();
