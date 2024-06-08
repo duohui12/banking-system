@@ -4,26 +4,25 @@ import com.example.banking.account.adapter.persistence.AccountPersistenceAdapter
 import com.example.banking.account.application.facade.LettuceLockAccountFacade;
 import com.example.banking.account.application.port.SendMoneyCommand;
 import com.example.banking.account.domain.Account;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 @Nested
 @SpringBootTest
-@DisplayName("SendMoneyService 클래스")
-class SendMoneyServiceConcurrencyTest {
+@DisplayName("Lettuce를 사용한 SendMoneyService 동시성 테스트")
+class SendMoneyServiceConcurrencyTestWithLettuce {
 
     @Autowired
-    private SendMoneyService sendMoneyService;
+    private LettuceLockAccountFacade lettuceLockAccountFacade;
 
     @Autowired
     private AccountPersistenceAdapter accountPersistenceAdapter;
@@ -35,6 +34,13 @@ class SendMoneyServiceConcurrencyTest {
     private static Long targetAccountId = 54321L;
     private static Long targetAccountBalance = 5000L;
     private static Long sendMoneyAmount = 50L;
+
+    @BeforeEach
+    void setup(){
+        //잔액 초기화
+        accountPersistenceAdapter.saveAccount(Account.getAccountInstance(sourceAccountId,sourceAccountBalance));
+        accountPersistenceAdapter.saveAccount(Account.getAccountInstance(targetAccountId,targetAccountBalance));
+    }
 
     @Nested
     @DisplayName("SendMoney 메서드는")
@@ -58,7 +64,11 @@ class SendMoneyServiceConcurrencyTest {
 
                 for (int i = 1; i <= runCount; i++) {
                     executorService.submit(() -> {
-                            sendMoneyService.sendMoneyWithPessimisticLock(validCommand);
+                        try {
+                            lettuceLockAccountFacade.sendMoney(validCommand);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                         countDownLatch.countDown();
                     });
                 }
@@ -96,8 +106,12 @@ class SendMoneyServiceConcurrencyTest {
 
                 for (int i = 1; i <= runCount; i++) {
                     executorService.submit(() -> {
-                        sendMoneyService.sendMoneyWithPessimisticLock(sourceToTargetCommand);
-                        sendMoneyService.sendMoneyWithPessimisticLock(targetToSourceCommand);
+                        try {
+                            lettuceLockAccountFacade.sendMoney(sourceToTargetCommand);
+                            lettuceLockAccountFacade.sendMoney(targetToSourceCommand);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                         countDownLatch.countDown();
                     });
                 }
