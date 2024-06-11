@@ -1,28 +1,26 @@
 package com.example.banking.account.application.facade;
 
-import com.example.banking.account.adapter.persistence.RedisLockRepository;
 import com.example.banking.account.application.port.SendMoneyCommand;
 import com.example.banking.account.application.service.SendMoneyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class LettuceLockAccountFacade {
+public class RedissonLockAccountFacade {
 
     private final SendMoneyService sendMoneyService;
-    private final RedisLockRepository redisLockRepository;
+    private final RedissonClient redissonClient;
 
     public boolean sendMoney(SendMoneyCommand sendMoneyCommand) throws InterruptedException {
 
-        /*
-        데드락 방지
-        Lock 획득 순서를 정해서 순환대기 끊기
-        accountID 오름차순으로 Lock 걸기
-        */
-
+        boolean result;
         Long account1;
         Long account2;
 
@@ -34,20 +32,28 @@ public class LettuceLockAccountFacade {
             account2 = sendMoneyCommand.getSourceAccountId();
         }
 
-        //spin lock
-        while(!redisLockRepository.lock(account1) || ! redisLockRepository.lock(account2)){
-            Thread.sleep(100);
-        }
+        RLock lock1 = redissonClient.getLock(account1.toString());
+        RLock lock2 = redissonClient.getLock(account2.toString());
 
-        boolean result = false;
         try{
+            boolean availableLock1 = lock1.tryLock(10, 15, TimeUnit.SECONDS);
+            boolean availableLock2 = lock2.tryLock(10, 5, TimeUnit.SECONDS);
+
+            if(!availableLock1 || !availableLock2){
+                log.info("lock 획득 실패");
+                return false;
+            }
+
             result = sendMoneyService.sendMoney(sendMoneyCommand);
-        }finally{
-            redisLockRepository.unlock(account1);
-            redisLockRepository.unlock(account2);
+        }catch(InterruptedException ex){
+            log.info("에러발생");
+            throw ex;
+        }finally {
+            lock1.unlock();
+            lock2.unlock();
         }
 
         return result;
+
     }
 }
-
