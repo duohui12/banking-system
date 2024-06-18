@@ -1,5 +1,6 @@
 package com.example.banking.account.adapter.web;
 
+import com.example.banking.exception.AccountNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,11 @@ class SendMoneyControllerAdvice {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler
+    public ResponseEntity<String> handleAccountNotFoundException(AccountNotFoundException ex){
+        log.error("AccountNotFoundException: {}", ex.getMessage());
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NO_CONTENT);
+    }
 
 }
 
